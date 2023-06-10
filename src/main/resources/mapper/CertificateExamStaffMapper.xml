@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.certificate.mapper.CertificateExamStaffMapper">
+    <select id="get" resultType="CertificateExamStaff">
+        select * from certificate_exam_staff where id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certificate_exam_staff(
+            staff_id, exam_id, is_approve, create_date, del_flag
+        ) VALUES (
+            #{staffId},
+            #{examId},
+            #{isApprove},
+            #{createDate},
+                  0
+        )
+    </insert>
+    <update id="delete">
+        UPDATE certificate_exam_staff SET
+            del_flag = 1
+        WHERE id = #{id}
+    </update>
+    <update id="update">
+        UPDATE certificate_exam_staff SET
+            staff_id = #{staffId},
+            exam_id = #{examId},
+            is_approve = #{isApprove},
+            obtain_date = #{obtainDate},
+            written_exam_img = #{writtenExamImg},
+            sample_img = #{sampleImg},
+            term_validity = #{termValidity}
+        WHERE id = #{id}
+    </update>
+    <select id="findList" resultType="CertificateExamStaff">
+        SELECT a.id AS id,a.staff_id AS staffId,a.exam_id AS examId, a.is_approve AS isApprove,a.create_date AS createDate,a.term_validity AS termValidity,
+               a.written_exam_img AS writtenExamImg,a.sample_img AS sampleImg,staff.id AS "staff.id",
+        staff.staff_company AS "staff.staffCompany", staff.staff_name AS "staff.staffName", staff.staff_phone AS "staff.staffPhone", staff.staff_card AS "staff.staffCard",
+        staff.create_date AS "staff.createDate"
+        FROM certificate_exam_staff a left join certificate_staff staff on a.staff_id = staff.id where a.del_flag = 0 AND a.exam_id = #{examId}
+    </select>
+
+    <select id="getByStaffId" resultType="CertificateExamStaff">
+        SELECT * FROM certificate_exam_staff where del_flag = 0 AND exam_id = #{examId} AND staff_id = #{staffId}
+    </select>
+</mapper>

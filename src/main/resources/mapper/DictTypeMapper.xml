@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.certificate.mapper.DictTypeMapper">
+
+    <sql id="dictTypeColumns">
+        a.id AS "id",
+		a.type AS "type",
+		a.description AS "description",
+		a.create_date AS "createDate",
+		a.del_flag AS "delFlag"
+    </sql>
+
+    <sql id="dictTypeJoins">
+    </sql>
+
+
+    <select id="get" resultType="DictType" >
+        SELECT
+        <include refid="dictTypeColumns"/>
+        FROM sys_dict_type a
+        <include refid="dictTypeJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="DictType" >
+        SELECT
+        <include refid="dictTypeColumns"/>
+        FROM sys_dict_type a
+        <include refid="dictTypeJoins"/>
+        <where>
+            a.del_flag = 0
+            <if test="type != null and type != ''">
+                AND a.type LIKE concat(concat('%',#{type}),'%')
+            </if>
+            <if test="description != null and description != ''">
+                AND a.description LIKE concat(concat('%',#{description}),'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllList" resultType="DictType" >
+        SELECT
+        <include refid="dictTypeColumns"/>
+        FROM sys_dict_type a
+        <include refid="dictTypeJoins"/>
+        <where>
+            a.del_flag = 0
+        </where>
+    </select>
+
+    <insert id="insert">
+        INSERT INTO sys_dict_type(
+            id,
+            type,
+            description,
+            create_date,
+            del_flag
+        ) VALUES (
+                     #{id},
+                     #{type},
+                     #{description},
+                     #{createDate},
+                     0
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_dict_type SET
+                                 type = #{type},
+                                 description = #{description}
+        WHERE id = #{id}
+    </update>
+
+
+    <!--物理删除-->
+    <update id="delete">
+        DELETE FROM sys_dict_type
+        WHERE id = #{id}
+    </update>
+
+    <!--逻辑删除-->
+    <update id="deleteByLogic">
+        UPDATE sys_dict_type SET
+            del_flag = 1
+        WHERE id = #{id}
+    </update>
+
+    <select id="getType" resultType="DictType" >
+        SELECT
+        <include refid="dictTypeColumns"/>
+        FROM sys_dict_type a
+        <include refid="dictTypeJoins"/>
+        WHERE a.type = #{type} limit 1
+    </select>
+
+
+</mapper>

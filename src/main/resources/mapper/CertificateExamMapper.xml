@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.certificate.mapper.CertificateExamMapper">
+    <select id="get" resultType="CertificateExam">
+        select * from certificate_exam where id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certificate_exam(
+            exam_state,exam_name,exam_level,exam_form,create_date,del_flag,start_time,end_time,exam_affiliated
+        )VALUES (
+            '未开始',
+            #{examName},
+            #{examLevel},
+            #{examForm},
+            #{createDate},
+            0,
+            #{startTime},
+            #{endTime},
+            #{examAffiliated}
+        )
+    </insert>
+    <update id="update">
+        UPDATE certificate_exam SET
+            exam_state = #{examState},
+            exam_name = #{examName},
+            exam_level = #{examLevel},
+            exam_form = #{examForm},
+            exam_affiliated = #{examAffiliated}
+        WHERE
+        id = #{id}
+    </update>
+    <update id="delete">
+        UPDATE certificate_exam SET
+            del_flag = 1
+        where id = #{id}
+    </update>
+    <select id="findList" resultType="CertificateExam">
+        SELECT * from certificate_exam where del_flag = 0
+        <if test="examName != null and examName != ''">
+            AND instr(exam_name, #{examName})
+        </if>
+        <if test="examLevel != null and examLevel != ''">
+            AND instr(exam_level, #{examLevel})
+        </if>
+        <if test="examAffiliated != null and examAffiliated != ''">
+            AND exam_affiliated = #{examAffiliated}
+        </if>
+    </select>
+
+    <select id="updateStateStart">
+        UPDATE certificate_exam SET
+            exam_state = '进行中'
+        WHERE
+            start_time &lt; SYSDATE() AND exam_state != '进行中'
+    </select>
+
+    <select id="updateStateEnd">
+        UPDATE certificate_exam a SET
+            a.exam_state = '已结束'
+        WHERE
+            a.end_time &lt; SYSDATE() AND a.exam_state != '已结束'
+    </select>
+
+    <select id="findCertificate" resultType="CertificateExam">
+        select a.*,s.term_validity AS termValidity
+        from certificate_exam a left join certificate_exam_staff s on a.id = s.exam_id
+        where a.id in (select exam_id
+                     from certificate_staff c
+                              left join certificate_exam_staff ces on c.id = ces.staff_id
+                     where c.id = #{id}
+                       and is_approve = '通过')
+          and s.staff_id = #{id}
+        group by a.exam_level desc
+        limit 1;
+    </select>
+</mapper>

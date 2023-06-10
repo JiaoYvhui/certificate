@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.certificate.mapper.CertificateStaffMapper">
+    <select id="get" resultType="CertificateStaff">
+        select *
+        from certificate_staff
+        where id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certificate_staff (staff_company, staff_name, staff_phone, staff_card, create_date, del_flag,
+                                       staff_ethnic, staff_gender, staff_birth_date, staff_avatar)
+        VALUES (#{staffCompany},
+                #{staffName},
+                #{staffPhone},
+                #{staffCard},
+                #{createDate},
+                0,
+                #{staffEthnic},
+                #{staffGender},
+                #{staffBirthDate},
+                #{staffAvatar})
+    </insert>
+
+    <update id="delete">
+        UPDATE certificate_staff
+        SET del_flag = 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="update">
+        UPDATE certificate_staff
+        SET staff_company    = #{staffCompany},
+            staff_name       = #{staffName},
+            staff_phone      = #{staffPhone},
+            staff_card       = #{staffCard},
+            staff_ethnic     = #{staffEthnic},
+            staff_gender     = #{staffGender},
+            staff_birth_date = #{staffBirthDate},
+            staff_avatar     = #{staffAvatar}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findList" resultType="CertificateStaff">
+        SELECT * FROM certificate_staff where del_flag = 0
+        <if test="staffName != null and staffName != ''">
+            AND instr(staff_name, #{staffName})
+        </if>
+        <if test="staffPhone != null and staffPhone != ''">
+            AND instr(staff_phone, #{staffPhone})
+        </if>
+        <if test="staffCard != null and staffCard != ''">
+            AND instr(staff_card, #{staffCard})
+        </if>
+        <if test="staffCompany != null and staffCompany != ''">
+            AND staff_company = #{staffCompany}
+        </if>
+    </select>
+
+    <select id="findByCard" resultType="CertificateStaff">
+        select *
+        from certificate_staff
+        where staff_card = #{staffCard}
+          and del_flag = #{delFlag}
+    </select>
+
+    <select id="findCertificate" resultType="CertificateStaff">
+        SELECT *
+        FROM certificate_staff
+        where del_flag = 0
+          AND staff_name = #{staffName}
+          AND staff_phone = #{staffPhone}
+          AND staff_card = #{staffCard}
+    </select>
+
+    <select id="findStaffCard" resultType="String">
+        select staff_card from certificate_staff
+        where staff_card in
+        <foreach item="item" collection="staffCard" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+        and del_flag = 0
+    </select>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.certificate.mapper.CertificateMeansMapper">
+    <select id="get" resultType="CertificateMeans">
+        select * from certificate_means where id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certificate_means(
+            means_name,certificate_level,study_means,exam_means,create_date,del_flag,means_affiliated
+        )VALUES (
+            #{meansName},
+            #{certificateLevel},
+            #{studyMeans},
+            #{examMeans},
+            #{createDate},
+            0,
+            #{meansAffiliated}
+        )
+    </insert>
+    <update id="update">
+        UPDATE certificate_means SET
+            means_name = #{meansName},
+            certificate_level = #{certificateLevel},
+            study_means = #{studyMeans},
+            exam_means = #{examMeans},
+            means_affiliated = #{meansAffiliated}
+        WHERE
+        id = #{id}
+    </update>
+    <update id="delete">
+        UPDATE certificate_means SET
+            del_flag = 1
+        where id = #{id}
+    </update>
+    <select id="findList" resultType="CertificateMeans">
+        SELECT * from certificate_means where del_flag = 0
+        <if test="meansName != null and meansName != ''">
+            AND instr(means_name, #{meansName})
+        </if>
+        <if test="certificateLevel != null and certificateLevel != ''">
+            AND instr(certificate_level, #{certificateLevel})
+        </if>
+        <if test="meansAffiliated != null and meansAffiliated != ''">
+            AND means_affiliated = #{meansAffiliated}
+        </if>
+    </select>
+</mapper>

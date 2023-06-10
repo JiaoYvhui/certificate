@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.certificate.mapper.DictValueMapper">
+
+    <sql id="dictValueColumns">
+        a.id AS "id",
+		a.label AS "label",
+		a.value AS "value",
+		a.sort AS "sort",
+		a.dict_type_id AS "dictType.id",
+		a.create_date AS "createDate",
+		a.del_flag AS "delFlag"
+    </sql>
+
+    <sql id="dictValueJoins">
+        LEFT JOIN sys_dict_type b ON b.id = a.dict_type_id
+    </sql>
+
+
+    <select id="get" resultType="DictValue" >
+        SELECT
+        <include refid="dictValueColumns"/>
+        FROM sys_dict_value a
+        <include refid="dictValueJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="DictValue" >
+        SELECT
+        <include refid="dictValueColumns"/>
+        FROM sys_dict_value a
+        <include refid="dictValueJoins"/>
+        <where>
+            a.del_flag = 0
+            <if test="label != null and label != ''">
+                AND a.label LIKE concat(concat('%',#{label}),'%')
+            </if>
+            <if test="value != null and value != ''">
+                AND a.value = #{value}
+            </if>
+            <if test="dictType != null and dictType.id != null and dictType.id != ''">
+                AND a.dict_type_id = #{dictType.id}
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllList" resultType="DictValue" >
+        SELECT
+        <include refid="dictValueColumns"/>
+        FROM sys_dict_value a
+        <include refid="dictValueJoins"/>
+        <where>
+            a.del_flag = 0
+        </where>
+    </select>
+
+    <insert id="insert">
+        INSERT INTO sys_dict_value(
+            id,
+            label,
+            value,
+            sort,
+            dict_type_id,
+            create_date,
+            del_flag
+        ) VALUES (
+                     #{id},
+                     #{label},
+                     #{value},
+                     #{sort},
+                     #{dictType.id},
+                     #{createDate},
+                     0
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_dict_value SET
+                                  label = #{label},
+                                  value = #{value},
+                                  sort = #{sort},
+                                  dict_type_id = #{dictType.id}
+        WHERE id = #{id}
+    </update>
+
+
+    <!--物理删除-->
+    <update id="delete">
+        DELETE FROM sys_dict_value
+        <choose>
+            <when test="id !=null and id != ''">
+                WHERE id = #{id}
+            </when>
+            <otherwise>
+                WHERE dict_type_id = #{dictType.id}
+            </otherwise>
+        </choose>
+    </update>
+
+    <!--逻辑删除-->
+    <update id="deleteByLogic">
+        UPDATE sys_dict_value SET
+        del_flag = 1
+        <choose>
+            <when test="id !=null and id != ''">
+                WHERE id = #{id}
+            </when>
+            <otherwise>
+                WHERE dict_type_id = #{dictType.id}
+            </otherwise>
+        </choose>
+    </update>
+
+</mapper>
